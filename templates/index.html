@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message {
+            word-wrap: break-word;
+            margin: 20px 0;
+        }
+        .user {
+            color: blue;
+        }
+        .assistant {
+            color: green;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: gray;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 15px;
+            border: none;
+        }
+        button:hover {
+            cursor: pointer;
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chatbot</h1>
+        <div class="messages" id="messages">
+            <!-- Chat messages will be appended here -->
+        </div>
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById("userInput").value;
+            
+            if (!userInput) {
+                return;
+            }
+            
+            document.getElementById("userInput").value = "";
+            addMessageToDom('user', userInput);
+
+            fetch('/send_message', {
+                method: 'POST',
+                body: JSON.stringify({"user_input": userInput}),
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessageToDom('assistant', data.assistant_response, data.timestamp);
+            });
+        }
+
+        function addMessageToDom(role, content, timestamp = null) {
+            const messagesDiv = document.getElementById("messages");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", role);
+            messageDiv.textContent = content;
+
+            if (timestamp) {
+                const timestampDiv = document.createElement("div");
+                timestampDiv.classList.add("timestamp");
+                timestampDiv.textContent = timestamp;
+                messageDiv.appendChild(timestampDiv);
+            }
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
