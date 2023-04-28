@@ -35,9 +35,6 @@ def send_message():
         return jsonify({"error": "Please provide user_input"}), 400
 
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
-    for chat in Chat.query.all():
-        messages.append({"role": "user", "content": chat.user_text})
-        messages.append({"role": "assistant", "content": chat.assistant_text})
     messages.append({"role": "user", "content": user_input})
 
     response = openai.ChatCompletion.create(
@@ -45,7 +42,7 @@ def send_message():
         messages=messages,
     )
 
-    assistant_response = response.choices[0].message['content']
+    assistant_response = response['choices'][0]['message']['content']
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     chat = Chat(timestamp=timestamp, user_text=user_input, assistant_text=assistant_response)
