@@ -35,7 +35,8 @@ def send_message():
         return jsonify({"error": "Please provide user_input"}), 400
 
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
-    for chat in Chat.query.all():
+    recent_chats = Chat.query.order_by(Chat.id.desc()).limit(4).all()
+    for chat in reversed(recent_chats):
         messages.append({"role": "user", "content": chat.user_text})
         messages.append({"role": "assistant", "content": chat.assistant_text})
     messages.append({"role": "user", "content": user_input})
